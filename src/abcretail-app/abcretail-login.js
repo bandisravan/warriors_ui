@@ -51,6 +51,11 @@ class AbcretailLoginApp extends PolymerElement {
           border-radius:1px;
           border:1px #ccc solid;
         }
+        #errorMsg{
+             color:#ff2600;
+          text-align:center;
+          font-size:20px;
+            }
       </style>
       <iron-ajax id="loginAjax" method="POST" url="{{getConfig('login')}}" on-response="_handleLoginResponse" handle-as="json" on-error="_handleLoginError"></iron-ajax>
       
@@ -69,7 +74,7 @@ class AbcretailLoginApp extends PolymerElement {
         <paper-input type="password" name="password" label="User Password" required auto-validate error-message="Enter Password" value="{{userPwd}}"></paper-input>
         <paper-button raised on-click="_loginSubmit">LOGIN</paper-button>
         </div>
-        <div id="error" style="color:#ff2600;">[[errorMsg]]</div>
+        <div id="errorMsg">[[errorMsg]]</div>
       </form>
     </iron-form>
       

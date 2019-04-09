@@ -54,6 +54,10 @@ class AbcretailCreateApp extends PolymerElement {
           border-radius:1px;
           border:1px #ccc solid;
         }
+        paper-toast{
+          background:#0a9e56;
+          color:#fff;
+        }
       </style>
       <iron-ajax id="createAjax" url="{{getConfig('createAccount')}}" on-response="_handleCreateResponse" handle-as="json" on-error="_handleCreateError"></iron-ajax>
       <div class="card">
@@ -70,7 +74,7 @@ class AbcretailCreateApp extends PolymerElement {
       <paper-dropdown-menu label="Select Gender" id="genderSelect" name="gender" required>
         <paper-listbox slot="dropdown-content">
           <paper-item value="male">Male</paper-item>
-          <paper-item value="femate">Femate</paper-item>
+          <paper-item value="female">Female</paper-item>
         </paper-listbox>
       </paper-dropdown-menu>
       <div>

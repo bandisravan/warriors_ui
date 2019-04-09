@@ -155,7 +155,7 @@ class AbcretailApp extends PolymerElement {
       return false;
     }
   }
-  checkUser(){debugger;
+  checkUser(){
     if((sessionStorage.length != 0)){
       this.isLoggedIn = true;
       this.userRole = sessionStorage.getItem('userRole');
