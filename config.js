@@ -1,3 +1,3 @@
 var config ={
-    "baseURL": "http://10.117.189.159:9090/api"
+    "baseURL": "http://13.234.186.204:9090/api"
 }
