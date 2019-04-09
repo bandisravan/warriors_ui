@@ -1,0 +1,28 @@
+{  
+  "entrypoint": "index.html",
+  "shell": "src/abcretail-app/abcretail-app.js",
+  "sources": [
+    "src/*/*.*",
+    "test/**",
+    "manifest/**",
+    "package.json"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "node_modules/@webcomponents/webcomponentsjs/**",
+    "node_modules/web-animations-js/**",
+    "config.js"
+  ],
+  "builds": [
+    {
+      "name": "abcretail",
+      "preset": "es5-bundled"
+    }
+  ],
+  "npm": true,
+  "lint": {
+    "rules": [
+      "polymer-3"
+    ]
+  }
+}
