@@ -124,16 +124,21 @@ getConfig(path){
   }
   _handleLoginResponse(e){
       let resp = e.detail.response;
-      this.errorMsg = "";
-      this.userData = {'role':this.userRoleSelected,'userId':resp.custId};
-      
-      sessionStorage.setItem('userRole',this.userRoleSelected);
-      sessionStorage.setItem('userId',resp.custId);
-      this.dispatchEvent(new CustomEvent('login-user', {bubbles: true, composed: true,detail: {loggedIn: true,userRole:this.userRoleSelected}}));
-      if(this.userRoleSelected == 'admin'){
-          this.set('route.path','/create');
-      }else if(this.userRoleSelected == 'customer'){
-          this.set('route.path','/details');
+      if(resp.success == 'true'){
+        this.errorMsg = "";
+        this.userData = {'role':this.userRoleSelected,'userId':resp.custId};
+        
+        sessionStorage.setItem('userRole',this.userRoleSelected);
+        sessionStorage.setItem('userId',resp.custId);
+        this.dispatchEvent(new CustomEvent('login-user', {bubbles: true, composed: true,detail: {loggedIn: true,userRole:this.userRoleSelected}}));
+        if(this.userRoleSelected == 'admin'){
+            this.set('route.path','/create');
+        }else if(this.userRoleSelected == 'customer'){
+            this.set('route.path','/details');
+        }    
+          
+      }else{
+          this.errorMsg = "Invalid Credentials";
       }
   }
   _handleLoginError(e){

@@ -66,15 +66,7 @@ class AbcretailApp extends PolymerElement {
           <app-header slot="header">
             <app-toolbar>              
               <div main-title="">ABC RETAIL BANKING</div>
-              <template is="dom-if" if="[[!isLoggedIn]]">
-                <a name="home" href="/#/home">Login</a>
-              </template>
-              <template is="dom-if" if="[[isAdmin]]">
-            <a name="create" href="/#/create">Create Account</a>
-            </template>
-            <template is="dom-if" if="[[isCustomer]]">
-            <a name="detail" href="/#/details">Details</a>
-            </template>
+              
             </app-toolbar>
           </app-header>
 
