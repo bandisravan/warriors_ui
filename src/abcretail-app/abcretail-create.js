@@ -5,6 +5,7 @@ import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
+import '@polymer/paper-toast/paper-toast.js';
 
 /**
  * @customElement
@@ -24,13 +25,13 @@ class AbcretailCreateApp extends PolymerElement {
             var ajaxElem = this.$.createAjax;
             let details = event.detail;
             let data = {
-  "name" : "TEST",
-  "email" : "xyz@gmail.com",
-  "nationality" : "Indian",
+  "name" :details.userName,
+  "email" : details.userEmail,
+  "nationality" : details.nationality,
   "phoneNo" : 9876245433,
-  "gender": "Female/Male",
-  "PAN": "BASE798FG",
-  "ADHAAR":"231468753019456"
+  "gender": details.gender,
+  "pan": details.pan,
+  "aadhaar":details.adhaar
 } 
         ajaxElem.method ="POST";
         ajaxElem.contentType = "application/json";
@@ -78,6 +79,7 @@ class AbcretailCreateApp extends PolymerElement {
     </iron-form>
       
       </div>
+      <paper-toast id="createMsg" text="Account Created Successfully." horizontal-align="right"></paper-toast>
     `;
   }
   static get properties() {
@@ -85,15 +87,6 @@ class AbcretailCreateApp extends PolymerElement {
       prop1: {
         type: String,
         value: 'abcretail-app'
-      },
-      userId:{
-          type: String
-      },
-      userPwd:{
-          type: String
-      },
-      userRoleSelected:{
-          type: String
       }
     };
   }
@@ -105,7 +98,12 @@ class AbcretailCreateApp extends PolymerElement {
   }
   _handleCreateResponse(e){
       let resp = e.detail.response;
+      this.$.createForm.reset();
+      this.$.createMsg.toggle();
   }
+  getConfig(path){
+    return config.baseURL+'/'+path;
+}
    
 }
 

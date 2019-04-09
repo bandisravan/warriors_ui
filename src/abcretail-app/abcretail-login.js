@@ -5,6 +5,7 @@ import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
+import '@polymer/app-storage/app-localstorage/app-localstorage-document.js';    
 
 /**
  * @customElement
@@ -26,12 +27,12 @@ class AbcretailLoginApp extends PolymerElement {
             let data = {
             "custId": details.userId,
             "password": details.password,
-            "role": details.userRole
-            }  
-            this.userRoleSelected = details.userRole;
+            "role": details.userRole.toLowerCase()
+        }  
+        this.userRoleSelected = details.userRole.toLowerCase();
         ajaxElem.method ="POST";
         ajaxElem.contentType = "application/json";
-        ajaxElem.body = JSON.stringify(data);
+        ajaxElem.body = JSON.stringify(data);debugger;
         ajaxElem.generateRequest();
             
         }.bind(this));
@@ -50,7 +51,9 @@ class AbcretailLoginApp extends PolymerElement {
           border:1px #ccc solid;
         }
       </style>
-      <iron-ajax id="loginAjax" url="{{getConfig('login')}}" on-response="_handleLoginResponse" handle-as="json" on-error="_handleLoginError"></iron-ajax>
+      <iron-ajax id="loginAjax" method="POST" url="{{getConfig('login')}}" on-response="_handleLoginResponse" handle-as="json" on-error="_handleLoginError"></iron-ajax>
+      <app-localstorage-document key="userData" data="{{userData}}" storage="window.sessionStorage">
+        </app-localstorage-document>
       <div class="card">
       <h2>LOGIN</h2>
 <iron-form id="loginForm">
@@ -60,12 +63,13 @@ class AbcretailLoginApp extends PolymerElement {
           <paper-item value="admin">Admin</paper-item>
           <paper-item value="customer">Customer</paper-item>
         </paper-listbox>
-      </paper-dropdown-menu>
+      </paper-dropdown-menu>    
       <div id="_showForm" style="display:none;">
         <paper-input label="User ID" name="userId" required auto-validate error-message="Enter User ID" value="{{userId}}"></paper-input>
         <paper-input type="password" name="password" label="User Password" required auto-validate error-message="Enter Password" value="{{userPwd}}"></paper-input>
         <paper-button raised on-click="_loginSubmit">LOGIN</paper-button>
         </div>
+        <div id="error" style="color:#ff2600;">[[errorMsg]]</div>
       </form>
     </iron-form>
       
@@ -89,10 +93,19 @@ class AbcretailLoginApp extends PolymerElement {
       },
       userRoleSelected:{
           type: String
+      },
+      userData:{
+          type:Object
+      },
+      errorMsg:{
+          type: String,
+          value:""
       }
     };
   }
-
+getConfig(path){
+    return config.baseURL+'/'+path;
+}
   _showForm(){
 
       this.$._showForm.style.display ="block";
@@ -104,6 +117,9 @@ class AbcretailLoginApp extends PolymerElement {
   }
   _handleLoginResponse(e){
       let resp = e.detail.response;
+      this.errorMsg = "";
+      this.userData = {'role':this.userRoleSelected,'userId':resp.custId};
+      this.dispatchEvent(new CustomEvent('login-user', {bubbles: true, composed: true,detail: {loggedIn: true,userRole:this.userRoleSelected}}));
       if(this.userRoleSelected == 'admin'){
           this.set('route.path','/create');
       }else if(this.userRoleSelected == 'customer'){
@@ -112,6 +128,7 @@ class AbcretailLoginApp extends PolymerElement {
   }
   _handleLoginError(e){
       console.log('Error');
+      this.errorMsg = "Server error.";
   }
    
 }

@@ -7,6 +7,8 @@ import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
 import '@polymer/iron-selector/iron-selector.js';
+import '@polymer/app-storage/app-localstorage/app-localstorage-document.js';
+    
 
 setPassiveTouchGestures(true);
 setRootPath(MyAppGlobals.rootPath);
@@ -15,6 +17,21 @@ setRootPath(MyAppGlobals.rootPath);
  * @polymer
  */
 class AbcretailApp extends PolymerElement {
+  constructor(){
+        super();
+    }
+    ready(){
+        super.ready();
+        //this.userData = {'role':'admin','userId':'12345'};
+    }
+    connectedCallback(){
+        super.connectedCallback();
+        this.addEventListener('login-user', function (e) {
+        console.log(e.detail.kicked); // true
+        this.isLoggedIn = false;
+        this.userRole = e.detail.userRole;
+      });
+    }
   static get template() {
     return html`
       <style>
@@ -43,13 +60,20 @@ class AbcretailApp extends PolymerElement {
 
       <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}" tail="{{subroute}}">
       </app-route>
-
+<app-localstorage-document key="userData" data="{{userData}}" storage="window.sessionStorage">
+        </app-localstorage-document>
           <app-header slot="header">
             <app-toolbar>              
               <div main-title="">ABC RETAIL BANKING</div>
-            <a name="home" href="[[rootPath]]#/home">Login</a>
-            <a name="create" href="[[rootPath]]#/create">Create</a>
-            <a name="detail" href="[[rootPath]]#/detail">Customer</a>
+              <template is="dom-if" if="{{_computeUserLogged()}}">
+                <a name="home" href="[[rootPath]]#/home">Login</a>
+              </template>
+              <template is="dom-if" if="{{_computeAdminRole()}}">
+            <a name="create" href="[[rootPath]]#/create">Create Account</a>
+            </template>
+            <template is="dom-if" if="{{_computeUserRole()}}">
+            <a name="detail" href="[[rootPath]]#/details">Details</a>
+            </template>
             </app-toolbar>
           </app-header>
 
@@ -74,13 +98,57 @@ class AbcretailApp extends PolymerElement {
         observer: '_pageChanged'
       },
       routeData: Object,
-      subroute: Object
+      subroute: Object,
+      isLoggedIn:{
+        type:Boolean
+      },
+      userRole:{
+        type:String
+      },
+      userData:{
+          type:Object
+      }
     };
   }
     static get observers() {
     return [
       '_routePageChanged(routeData.page)'
     ];
+  }
+  _computeUserLogged(){
+    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
+      return false;
+    }else{
+      return true;
+    }
+  }
+  _computeAdminRole(){
+    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
+      this.userRole = JSON.parse(localStorage.getItem('userData')).role;
+    }
+    if(this.userRole == 'admin'){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  _computeUserRole(){
+    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
+      this.userRole = JSON.parse(localStorage.getItem('userData')).role;
+    }
+    if(this.userRole == 'customer'){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  checkUser(){
+    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
+      this.userRole = localStorage.getItem('userData').userRole;
+    }
+    this._computeUserRole();
+    this._computeAdminRole();
+    this._computeUserLogged();
   }
   _routePageChanged(page) {
     if (!page) {
@@ -93,6 +161,7 @@ class AbcretailApp extends PolymerElement {
   }
 
   _pageChanged(page) {
+    this.checkUser();
     switch (page) {
       case 'home':
         import('./abcretail-login.js');
