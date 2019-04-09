@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import '@polymer/iron-form/iron-form.js';
+import '@polymer/iron-ajax/iron-ajax.js';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
@@ -32,7 +33,7 @@ class AbcretailLoginApp extends PolymerElement {
         this.userRoleSelected = details.userRole.toLowerCase();
         ajaxElem.method ="POST";
         ajaxElem.contentType = "application/json";
-        ajaxElem.body = JSON.stringify(data);debugger;
+        ajaxElem.body = JSON.stringify(data);
         ajaxElem.generateRequest();
             
         }.bind(this));
@@ -52,8 +53,7 @@ class AbcretailLoginApp extends PolymerElement {
         }
       </style>
       <iron-ajax id="loginAjax" method="POST" url="{{getConfig('login')}}" on-response="_handleLoginResponse" handle-as="json" on-error="_handleLoginError"></iron-ajax>
-      <app-localstorage-document key="userData" data="{{userData}}" storage="window.sessionStorage">
-        </app-localstorage-document>
+      
       <div class="card">
       <h2>LOGIN</h2>
 <iron-form id="loginForm">
@@ -79,6 +79,8 @@ class AbcretailLoginApp extends PolymerElement {
          
     `;
   }
+  //<app-localstorage-document key="userData" data="{{userData}}" storage="window.sessionStorage">
+        //</app-localstorage-document>
   static get properties() {
     return {
       prop1: {
@@ -119,6 +121,9 @@ getConfig(path){
       let resp = e.detail.response;
       this.errorMsg = "";
       this.userData = {'role':this.userRoleSelected,'userId':resp.custId};
+      
+      sessionStorage.setItem('userRole',this.userRoleSelected);
+      sessionStorage.setItem('userId',resp.custId);
       this.dispatchEvent(new CustomEvent('login-user', {bubbles: true, composed: true,detail: {loggedIn: true,userRole:this.userRoleSelected}}));
       if(this.userRoleSelected == 'admin'){
           this.set('route.path','/create');

@@ -28,7 +28,8 @@ class AbcretailApp extends PolymerElement {
         super.connectedCallback();
         this.addEventListener('login-user', function (e) {
         console.log(e.detail.kicked); // true
-        this.isLoggedIn = false;
+        this.checkUser();
+        this.isLoggedIn = true;
         this.userRole = e.detail.userRole;
       });
     }
@@ -58,21 +59,21 @@ class AbcretailApp extends PolymerElement {
       </style>
       <app-location route="{{route}}" url-space-regex="^[[rootPath]]" use-hash-as-path></app-location>
 
-      <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}" tail="{{subroute}}">
+      <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}">
       </app-route>
-<app-localstorage-document key="userData" data="{{userData}}" storage="window.sessionStorage">
+
         </app-localstorage-document>
           <app-header slot="header">
             <app-toolbar>              
               <div main-title="">ABC RETAIL BANKING</div>
-              <template is="dom-if" if="{{_computeUserLogged()}}">
-                <a name="home" href="[[rootPath]]#/home">Login</a>
+              <template is="dom-if" if="[[!isLoggedIn]]">
+                <a name="home" href="/#/home">Login</a>
               </template>
-              <template is="dom-if" if="{{_computeAdminRole()}}">
-            <a name="create" href="[[rootPath]]#/create">Create Account</a>
+              <template is="dom-if" if="[[isAdmin]]">
+            <a name="create" href="/#/create">Create Account</a>
             </template>
-            <template is="dom-if" if="{{_computeUserRole()}}">
-            <a name="detail" href="[[rootPath]]#/details">Details</a>
+            <template is="dom-if" if="[[isCustomer]]">
+            <a name="detail" href="/#/details">Details</a>
             </template>
             </app-toolbar>
           </app-header>
@@ -100,13 +101,23 @@ class AbcretailApp extends PolymerElement {
       routeData: Object,
       subroute: Object,
       isLoggedIn:{
-        type:Boolean
+        type:Boolean,
+        value: false
       },
       userRole:{
         type:String
       },
       userData:{
           type:Object
+      },
+      isAdmin:{
+        type:Boolean,
+        value: false
+      },
+
+      isCustomer:{
+        type:Boolean,
+        value: false
       }
     };
   }
@@ -116,25 +127,27 @@ class AbcretailApp extends PolymerElement {
     ];
   }
   _computeUserLogged(){
-    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
-      return false;
+    if((sessionStorage.length != 0)){
+      this.isLoggedIn = true;
+      //return false;
     }else{
-      return true;
+      this.isLoggedIn = false;
+      //return true;
     }
   }
   _computeAdminRole(){
-    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
-      this.userRole = JSON.parse(localStorage.getItem('userData')).role;
+    if((sessionStorage.length != 0)){
+      this.userRole = sessionStorage.getItem('userRole');
     }
     if(this.userRole == 'admin'){
-      return true;
+      this.isCustomer =true;
     }else{
-      return false;
+       this.isCustomer =false;
     }
   }
   _computeUserRole(){
-    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
-      this.userRole = JSON.parse(localStorage.getItem('userData')).role;
+    if((sessionStorage.length != 0)){
+      this.userRole = sessionStorage.getItem('userRole');
     }
     if(this.userRole == 'customer'){
       return true;
@@ -142,13 +155,27 @@ class AbcretailApp extends PolymerElement {
       return false;
     }
   }
-  checkUser(){
-    if((localStorage.getItem('userData')!=null) && (localStorage.getItem('userData')!='null')){
-      this.userRole = localStorage.getItem('userData').userRole;
+  checkUser(){debugger;
+    if((sessionStorage.length != 0)){
+      this.isLoggedIn = true;
+      this.userRole = sessionStorage.getItem('userRole');
+      if(this.userRole == 'admin'){
+        this.isAdmin =true;
+      }else if(this.userRole == 'customer'){
+        this.isCustomer =true;
+      }else{
+         this.isAdmin =false;
+         this.isCustomer =false;
+         this.isLoggedIn = false;
+      }
+    }else{
+      this.page = 'home';
+      this.set('route.path','/home');
+      this.isLoggedIn =false;
     }
-    this._computeUserRole();
-    this._computeAdminRole();
-    this._computeUserLogged();
+    //this._computeUserRole();
+    //this._computeAdminRole();
+    //this._computeUserLogged();
   }
   _routePageChanged(page) {
     if (!page) {

@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import '@polymer/iron-form/iron-form.js';
+import '@polymer/iron-ajax/iron-ajax.js';
 import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
@@ -24,7 +25,7 @@ class AbcretailDetailsApp extends PolymerElement {
             
             var ajaxElem = this.$.transferAjax;
             let details = event.detail;
-            let userId = JSON.parse(localStorage.getItem('userData')).userId
+            let userId = sessionStorage.getItem('userId')
             let data = {
   "custId" :userId,
   "amount" : details.amount
@@ -35,6 +36,11 @@ class AbcretailDetailsApp extends PolymerElement {
         ajaxElem.generateRequest();
             
         }.bind(this));
+
+        this.$.DetailsAjax.body ={'custId':sessionStorage.getItem('userId')};
+        this.$.DetailsAjax.contentType ="application/json";
+        this.$.DetailsAjax.method ="POST";
+        this.$.DetailsAjax.generateRequest();
     }
   static get template() {
     return html`
@@ -50,19 +56,19 @@ class AbcretailDetailsApp extends PolymerElement {
           border:1px #ccc solid;
         }
       </style>
-      <iron-ajax auto id="DetailsAjax" url="{{getConfig('getAccountInfo')}}" on-response="_handleDetailsResponse" handle-as="json" on-error="_handleDetailsError"></iron-ajax>
+      <iron-ajax id="DetailsAjax" url="{{getConfig('getAccountInfo')}}" on-response="_handleDetailsResponse" handle-as="json" on-error="_handleDetailsError"></iron-ajax>
       <iron-ajax id="transferAjax" url="{{getConfig('transferAmount')}}" on-response="_handleTransferResponse" handle-as="json" on-error="_handleTransferError"></iron-ajax>
       <div class="card">
       <h2>Customer Details</h2>
       <div>
      <h3> Welcome [[customerName]]<br /></h3>
       </div>
-      <div>Account Balance: [[customerBalance]]<br /></div>
+      <div>Account Balance: Rs: [[customerBalance]]<br /></div>
 
       <h2>Transfer Fund</h2>
     <iron-form id="transferForm">
       <form>      
-        <paper-input label="Amount" name="userName" required auto-validate error-message="Enter Amount" value=""></paper-input>
+        <paper-input label="Amount" name="amount" required auto-validate error-message="Enter Amount" value=""></paper-input>
         <paper-input disabled label="Beneficiary" value="Beneficiary1" name="beneficiary"></paper-input>
         
       <div>
@@ -103,11 +109,12 @@ class AbcretailDetailsApp extends PolymerElement {
   }
   _handleTransferResponse(e){
       this.$.transferForm.reset();
-      this.$.transferMsg.toggle();
+      this.$.transferMsg.toggle();      
+       this.customerBalance = e.detail.response.balance;
   }
   
    _handleDetailsResponse(e){
-       this.customerName = e.detail.response.customerName;
+       this.customerName = e.detail.response.name;
        this.customerBalance = e.detail.response.balance;
 
    }
